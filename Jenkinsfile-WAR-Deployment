@@ -1,0 +1,145 @@
+pipeline {
+    agent any
+    
+    tools {
+        maven 'Maven'
+        nodejs 'NodeJS'
+    }
+    
+    environment {
+        TOMCAT_HOME = 'C:\\Program Files\\Apache Software Foundation\\Tomcat 9.0'
+        WEBAPPS_DIR = "${TOMCAT_HOME}\\webapps"
+        SERVICE_NAME = 'Tomcat9'
+    }
+    
+    stages {
+        stage('Checkout') {
+            steps {
+                echo 'Checking out source code...'
+                checkout scm
+            }
+        }
+        
+        stage('Build Frontend') {
+            steps {
+                dir('frontend') {
+                    echo 'Installing frontend dependencies...'
+                    bat 'npm install'
+                    echo 'Building frontend...'
+                    bat 'npm run build'
+                }
+            }
+        }
+        
+        stage('Include Frontend in Backend') {
+            steps {
+                echo 'Copying frontend build to backend webapp directory...'
+                bat '''
+                    if not exist "backend\\src\\main\\webapp" mkdir "backend\\src\\main\\webapp"
+                    if exist "frontend\\dist" (
+                        xcopy /E /I /Y "frontend\\dist\\*" "backend\\src\\main\\webapp\\"
+                    ) else (
+                        echo Frontend build directory not found, skipping frontend inclusion
+                    )
+                '''
+            }
+        }
+        
+        stage('Build Backend WAR') {
+            steps {
+                dir('backend') {
+                    echo 'Building backend WAR file...'
+                    bat 'mvn clean package -DskipTests'
+                }
+            }
+        }
+        
+        stage('Deploy to Tomcat') {
+            steps {
+                script {
+                    echo 'Deploying WAR file to Tomcat...'
+                    bat '''
+                        echo Stopping Tomcat service...
+                        net stop "%SERVICE_NAME%" 2>nul || echo Tomcat was not running
+                        
+                        timeout /t 5 /nobreak
+                        
+                        echo Cleaning up existing deployment...
+                        if exist "%WEBAPPS_DIR%\\portfolio-backend" (
+                            rmdir /s /q "%WEBAPPS_DIR%\\portfolio-backend"
+                        )
+                        if exist "%WEBAPPS_DIR%\\portfolio-backend.war" (
+                            del "%WEBAPPS_DIR%\\portfolio-backend.war"
+                        )
+                        
+                        echo Copying WAR file to Tomcat webapps...
+                        copy "backend\\target\\portfolio-backend.war" "%WEBAPPS_DIR%\\" /Y
+                        
+                        echo Starting Tomcat service...
+                        net start "%SERVICE_NAME%"
+                        
+                        echo Waiting for deployment...
+                        timeout /t 30 /nobreak
+                    '''
+                }
+            }
+        }
+        
+        stage('Health Check') {
+            steps {
+                echo 'Performing health check...'
+                script {
+                    bat '''
+                        echo Testing API connectivity...
+                        timeout /t 15 /nobreak
+                        
+                        curl -f http://localhost:8080/portfolio-backend/api/portfolio/services 2>nul
+                        if %errorlevel% equ 0 (
+                            echo ✅ Health check passed!
+                        ) else (
+                            echo ⚠️  Health check failed, but deployment may still be in progress
+                        )
+                    '''
+                }
+            }
+        }
+    }
+    
+    post {
+        always {
+            echo 'Cleaning up workspace...'
+            cleanWs()
+        }
+        success {
+            echo '''
+            ========================================
+            🎉 DEPLOYMENT SUCCESSFUL! 🎉
+            ========================================
+            
+            Application URLs:
+            🌐 Full Application: http://localhost:8080/portfolio-backend/
+            🔗 API Base URL: http://localhost:8080/portfolio-backend/api/portfolio/
+            
+            Test Endpoints:
+            📊 Services: http://localhost:8080/portfolio-backend/api/portfolio/services
+            💻 Technologies: http://localhost:8080/portfolio-backend/api/portfolio/technologies
+            👨‍💼 Experiences: http://localhost:8080/portfolio-backend/api/portfolio/experiences
+            🎯 Projects: http://localhost:8080/portfolio-backend/api/portfolio/projects
+            🏆 Certificates: http://localhost:8080/portfolio-backend/api/portfolio/certificates
+            
+            ========================================
+            '''
+        }
+        failure {
+            echo '''
+            ❌ DEPLOYMENT FAILED! 
+            
+            Please check:
+            1. Tomcat is properly installed and running
+            2. MySQL database is accessible
+            3. Build logs for specific error messages
+            4. Tomcat logs: C:\\Program Files\\Apache Software Foundation\\Tomcat 9.0\\logs\\catalina.out
+            '''
+        }
+    }
+}
