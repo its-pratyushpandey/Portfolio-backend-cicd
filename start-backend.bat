@@ -22,7 +22,7 @@ if %errorlevel% neq 0 (
 
 echo Java and Maven are installed. Starting the application...
 echo.
-echo The API will be available at: http://localhost:8080/api
+echo The API will be available at: http://localhost:8070/api
 echo Press Ctrl+C to stop the application
 echo.
 

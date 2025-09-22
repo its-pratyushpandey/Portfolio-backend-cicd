@@ -4,6 +4,7 @@ import com.portfolio.entity.*;
 import com.portfolio.repository.*;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,6 +14,9 @@ import java.util.List;
 @Service
 @Transactional
 public class DataInitializationService {
+    
+    @Value("${portfolio.data.initialization.enabled:true}")
+    private boolean initializationEnabled;
     
     @Autowired
     private ServiceRepository serviceRepository;
@@ -34,6 +38,10 @@ public class DataInitializationService {
     
     @PostConstruct
     public void initializeData() {
+        if (!initializationEnabled) {
+            return;
+        }
+        
         if (serviceRepository.count() == 0) {
             initializeServices();
         }

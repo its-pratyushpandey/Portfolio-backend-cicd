@@ -41,7 +41,7 @@ mvn clean package
 java -jar target/portfolio-backend-0.0.1-SNAPSHOT.jar
 ```
 
-The API will be available at: `http://localhost:8080/api`
+The API will be available at: `http://localhost:8070/api`
 
 ### 3. API Endpoints
 
@@ -71,7 +71,7 @@ spring.datasource.username=root
 spring.datasource.password=@Pratyush123
 
 # Server Configuration
-server.port=8080
+server.port=8070
 server.servlet.context-path=/api
 
 # CORS Configuration
@@ -91,16 +91,16 @@ The application automatically populates the database with your portfolio data on
 
 ### 6. Frontend Integration
 
-Make sure your frontend makes requests to `http://localhost:8080/api/portfolio/` endpoints.
+Make sure your frontend makes requests to `http://localhost:8070/api/portfolio/` endpoints.
 
 Example API calls from frontend:
 ```javascript
 // Get all services
-const response = await fetch('http://localhost:8080/api/portfolio/services');
+const response = await fetch('http://localhost:8070/api/portfolio/services');
 const services = await response.json();
 
 // Submit contact form
-const response = await fetch('http://localhost:8080/api/portfolio/contact', {
+const response = await fetch('http://localhost:8070/api/portfolio/contact', {
     method: 'POST',
     headers: {
         'Content-Type': 'application/json',

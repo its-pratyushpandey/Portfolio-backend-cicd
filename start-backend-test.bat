@@ -22,8 +22,8 @@ if %errorlevel% neq 0 (
 
 echo Java and Maven are installed. Starting the application with H2 database...
 echo.
-echo The API will be available at: http://localhost:8080/api
-echo H2 Console will be available at: http://localhost:8080/api/h2-console
+echo The API will be available at: http://localhost:8070/api
+echo H2 Console will be available at: http://localhost:8070/api/h2-console
 echo Press Ctrl+C to stop the application
 echo.
 

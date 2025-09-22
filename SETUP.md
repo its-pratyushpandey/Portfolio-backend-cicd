@@ -51,15 +51,15 @@
 ### Verification
 
 1. **Check if the backend is running**
-   - Open browser and go to: http://localhost:8080/api/portfolio/health
+   - Open browser and go to: http://localhost:8070/api/portfolio/health
    - You should see: `{"status":"OK","message":"Portfolio Backend API is running"}`
 
 2. **Test API endpoints**
-   - Services: http://localhost:8080/api/portfolio/services
-   - Technologies: http://localhost:8080/api/portfolio/technologies
-   - Experiences: http://localhost:8080/api/portfolio/experiences
-   - Projects: http://localhost:8080/api/portfolio/projects
-   - Certificates: http://localhost:8080/api/portfolio/certificates
+   - Services: http://localhost:8070/api/portfolio/services
+   - Technologies: http://localhost:8070/api/portfolio/technologies
+   - Experiences: http://localhost:8070/api/portfolio/experiences
+   - Projects: http://localhost:8070/api/portfolio/projects
+   - Certificates: http://localhost:8070/api/portfolio/certificates
 
 ### Common Issues and Solutions
 
@@ -70,11 +70,11 @@
   - Check username/password in `application.properties`
   - Verify MySQL is running on port 3306
 
-#### Issue 2: Port 8080 already in use
-- **Error**: `Port 8080 was already in use`
+#### Issue 2: Port 8070 already in use
+- **Error**: `Port 8070 was already in use`
 - **Solution**: 
   - Change port in `application.properties`: `server.port=8081`
-  - Or stop the service using port 8080
+  - Or stop the service using port 8070
 
 #### Issue 3: Java/Maven not found
 - **Error**: `'java' is not recognized` or `'mvn' is not recognized`
@@ -95,7 +95,7 @@ Once the backend is running, you can integrate it with your frontend by:
    const [services, setServices] = useState([]);
    
    useEffect(() => {
-     fetch('http://localhost:8080/api/portfolio/services')
+     fetch('http://localhost:8070/api/portfolio/services')
        .then(response => response.json())
        .then(data => setServices(data));
    }, []);
@@ -104,7 +104,7 @@ Once the backend is running, you can integrate it with your frontend by:
 2. **Update the contact form**
    - Replace EmailJS with backend API call
    ```javascript
-   const response = await fetch('http://localhost:8080/api/portfolio/contact', {
+   const response = await fetch('http://localhost:8070/api/portfolio/contact', {
      method: 'POST',
      headers: {
        'Content-Type': 'application/json',
